@@ -1,0 +1,23 @@
+meta {
+  name: POST node - no auth - 401
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8000/nodes
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Test"
+  }
+}
+
+tests {
+  test("status is 401", function() {
+    expect(res.status).to.equal(401);
+  });
+}

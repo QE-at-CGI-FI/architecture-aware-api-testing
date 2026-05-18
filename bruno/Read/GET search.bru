@@ -1,0 +1,25 @@
+meta {
+  name: GET search
+  type: http
+  seq: 15
+}
+
+get {
+  url: http://localhost:8000/search?q=boundary
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("returns results", function() {
+    expect(res.body.length).to.be.above(0);
+  });
+  test("all results have breadcrumb", function() {
+    res.body.forEach(r => {
+      expect(r.breadcrumb).to.be.an('array');
+    });
+  });
+}

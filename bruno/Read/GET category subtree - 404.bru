@@ -1,0 +1,17 @@
+meta {
+  name: GET category subtree - 404
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:8000/categories/does-not-exist/subtree
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 404", function() {
+    expect(res.status).to.equal(404);
+  });
+}

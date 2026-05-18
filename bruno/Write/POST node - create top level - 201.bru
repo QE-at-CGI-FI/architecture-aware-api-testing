@@ -1,0 +1,34 @@
+meta {
+  name: POST node - create top level - 201
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:8000/nodes
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Key: aaa
+}
+
+body:json {
+  {
+    "name": "AI-Specific Errors",
+    "description": "Errors unique to ML systems."
+  }
+}
+
+tests {
+  test("status is 201", function() {
+    expect(res.status).to.equal(201);
+  });
+  test("level is 1", function() {
+    expect(res.body.level).to.equal(1);
+  });
+  test("parent_id is null", function() {
+    expect(res.body.parent_id).to.equal(null);
+  });
+}

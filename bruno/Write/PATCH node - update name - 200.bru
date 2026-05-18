@@ -1,0 +1,30 @@
+meta {
+  name: PATCH node - update name - 200
+  type: http
+  seq: 11
+}
+
+patch {
+  url: http://localhost:8000/nodes/verbosity
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Key: aaa
+}
+
+body:json {
+  {
+    "name": "Excessive verbosity"
+  }
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("name is updated", function() {
+    expect(res.body.name).to.equal('Excessive verbosity');
+  });
+}

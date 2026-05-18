@@ -1,0 +1,17 @@
+meta {
+  name: GET nodes invalid level - 422
+  type: http
+  seq: 12
+}
+
+get {
+  url: http://localhost:8000/nodes?level=5
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 422", function() {
+    expect(res.status).to.equal(422);
+  });
+}

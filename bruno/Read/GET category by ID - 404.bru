@@ -1,0 +1,17 @@
+meta {
+  name: GET category by ID - 404
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:8000/categories/does-not-exist
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 404", function() {
+    expect(res.status).to.equal(404);
+  });
+}

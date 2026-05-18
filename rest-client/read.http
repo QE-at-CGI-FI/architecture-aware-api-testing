@@ -1,0 +1,121 @@
+# GET /
+
+### root returns 200
+GET http://localhost:8000/
+
+### root has expected fields (total_nodes, top_level_categories, leaf_nodes, max_depth, categories_by_level)
+GET http://localhost:8000/
+
+### root node counts (394 total, 11 top-level, 341 leaves, depth 4)
+GET http://localhost:8000/
+
+### root categories_by_level covers all nodes
+GET http://localhost:8000/
+
+
+# GET /categories
+
+### categories returns 200
+GET http://localhost:8000/categories
+
+### categories returns 11 entries
+GET http://localhost:8000/categories
+
+### categories contains User Interface Errors
+GET http://localhost:8000/categories
+
+### categories each have required fields (id, name, level, children)
+GET http://localhost:8000/categories
+
+### categories are all level 1
+GET http://localhost:8000/categories
+
+
+# GET /categories/{id}
+
+### category by ID returns 200
+GET http://localhost:8000/categories/user-interface-errors
+
+### category by ID returns correct name
+GET http://localhost:8000/categories/user-interface-errors
+
+### category by ID includes children (Functionality, Communication)
+GET http://localhost:8000/categories/user-interface-errors
+
+### category by ID has empty breadcrumb for root
+GET http://localhost:8000/categories/user-interface-errors
+
+### category unknown ID returns 404
+GET http://localhost:8000/categories/does-not-exist
+
+
+# GET /categories/{id}/subtree
+
+### subtree returns 200
+GET http://localhost:8000/categories/error-handling/subtree
+
+### subtree children are nested objects
+GET http://localhost:8000/categories/error-handling/subtree
+
+### subtree unknown ID returns 404
+GET http://localhost:8000/categories/does-not-exist/subtree
+
+
+# GET /nodes
+
+### nodes returns 200
+GET http://localhost:8000/nodes
+
+### nodes returns all 394
+GET http://localhost:8000/nodes
+
+### nodes filter level 1 matches categories (11 results)
+GET http://localhost:8000/nodes?level=1
+
+### nodes filter level 4 returns deepest nodes
+GET http://localhost:8000/nodes?level=4
+
+### nodes filter parent_id
+GET http://localhost:8000/nodes?parent_id=user-interface-errors
+
+### nodes leaves only (341 results, child_count 0)
+GET http://localhost:8000/nodes?leaves_only=true
+
+### nodes invalid level returns 422
+GET http://localhost:8000/nodes?level=5
+
+
+# GET /nodes/{id}
+
+### node by ID returns 200
+GET http://localhost:8000/nodes/spelling-errors
+
+### node by ID has description
+GET http://localhost:8000/nodes/spelling-errors
+
+### node by ID breadcrumb lists ancestors (User Interface Errors, Communication)
+GET http://localhost:8000/nodes/spelling-errors
+
+### node unknown ID returns 404
+GET http://localhost:8000/nodes/no-such-node
+
+
+# GET /search
+
+### search returns 200
+GET http://localhost:8000/search?q=boundary
+
+### search results contain query term
+GET http://localhost:8000/search?q=overflow
+
+### search results include breadcrumb
+GET http://localhost:8000/search?q=cursor
+
+### search no match returns empty list
+GET http://localhost:8000/search?q=xyzzyplugh
+
+### search query too short returns 422
+GET http://localhost:8000/search?q=x
+
+### search missing query returns 422
+GET http://localhost:8000/search

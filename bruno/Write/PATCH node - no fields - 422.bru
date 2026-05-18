@@ -1,0 +1,25 @@
+meta {
+  name: PATCH node - no fields - 422
+  type: http
+  seq: 14
+}
+
+patch {
+  url: http://localhost:8000/nodes/spelling-errors
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Key: aaa
+}
+
+body:json {
+  {}
+}
+
+tests {
+  test("status is 422", function() {
+    expect(res.status).to.equal(422);
+  });
+}

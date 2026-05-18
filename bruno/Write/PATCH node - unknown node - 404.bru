@@ -1,0 +1,27 @@
+meta {
+  name: PATCH node - unknown node - 404
+  type: http
+  seq: 13
+}
+
+patch {
+  url: http://localhost:8000/nodes/no-such-node
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Key: aaa
+}
+
+body:json {
+  {
+    "description": "Ghost update"
+  }
+}
+
+tests {
+  test("status is 404", function() {
+    expect(res.status).to.equal(404);
+  });
+}

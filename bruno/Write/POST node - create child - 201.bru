@@ -1,0 +1,44 @@
+meta {
+  name: POST node - create child - 201
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8000/nodes
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Key: aaa
+}
+
+body:json {
+  {
+    "name": "AI hallucination output",
+    "parent_id": "calculation-errors",
+    "description": "Model outputs confident but factually wrong results."
+  }
+}
+
+tests {
+  test("status is 201", function() {
+    expect(res.status).to.equal(201);
+  });
+  test("name is correct", function() {
+    expect(res.body.name).to.equal('AI hallucination output');
+  });
+  test("parent_id is correct", function() {
+    expect(res.body.parent_id).to.equal('calculation-errors');
+  });
+  test("level is 2", function() {
+    expect(res.body.level).to.equal(2);
+  });
+  test("id is slugified", function() {
+    expect(res.body.id).to.equal('ai-hallucination-output');
+  });
+  test("response includes breadcrumb", function() {
+    expect(res.body.breadcrumb).to.be.an('array');
+  });
+}

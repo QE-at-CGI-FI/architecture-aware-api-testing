@@ -1,0 +1,30 @@
+meta {
+  name: PATCH node - update description - 200
+  type: http
+  seq: 10
+}
+
+patch {
+  url: http://localhost:8000/nodes/spelling-errors
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Key: aaa
+}
+
+body:json {
+  {
+    "description": "Typos in UI text. Customers notice even when developers do not."
+  }
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("description is updated", function() {
+    expect(res.body.description).to.equal('Typos in UI text. Customers notice even when developers do not.');
+  });
+}

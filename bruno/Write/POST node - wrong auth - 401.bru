@@ -1,0 +1,27 @@
+meta {
+  name: POST node - wrong auth - 401
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8000/nodes
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Key: wrong
+}
+
+body:json {
+  {
+    "name": "Test"
+  }
+}
+
+tests {
+  test("status is 401", function() {
+    expect(res.status).to.equal(401);
+  });
+}

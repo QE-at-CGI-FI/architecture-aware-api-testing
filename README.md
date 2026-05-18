@@ -8,7 +8,7 @@ This repo holds materials for the architecture-aware API testing course, first d
 
 ## Kaner Common Software Errors Taxonomy API
 
-A REST API that exposes the bug taxonomy from *Testing Computer Software* (Kaner, Falk & Nguyen, 1999) — 394 error types across 11 top-level categories, each with full descriptions and a navigable hierarchy.
+A REST API that exposes the bug taxonomy from _Testing Computer Software_ (Kaner, Falk & Nguyen, 1999) — 394 error types across 11 top-level categories, each with full descriptions and a navigable hierarchy.
 
 ### Running locally
 
@@ -31,18 +31,18 @@ A static copy of the spec is also committed at [`openapi.json`](./openapi.json).
 
 ### API reference
 
-| Endpoint | Description |
-|---|---|
-| `GET /` | Taxonomy statistics (node count, depth, counts by level) |
-| `GET /taxonomy` | Full tree — all 394 nodes nested (large payload) |
-| `GET /categories` | 11 top-level error categories with their direct children |
-| `GET /categories/{id}` | One category with its direct children and breadcrumb |
-| `GET /categories/{id}/subtree` | A category and all its descendants, nested |
-| `GET /nodes` | Flat list of all nodes; filter by `level`, `parent_id`, `leaves_only` |
-| `GET /nodes/{id}` | Full detail for any node: description, children, breadcrumb |
-| `POST /nodes` | Add a new node; requires `X-API-Key` header |
-| `PATCH /nodes/{id}` | Edit the name and/or description of a node; requires `X-API-Key` header |
-| `GET /search?q=` | Case-insensitive search across names and descriptions |
+| Endpoint                       | Description                                                             |
+| ------------------------------ | ----------------------------------------------------------------------- |
+| `GET /`                        | Taxonomy statistics (node count, depth, counts by level)                |
+| `GET /taxonomy`                | Full tree — all 394 nodes nested (large payload)                        |
+| `GET /categories`              | 11 top-level error categories with their direct children                |
+| `GET /categories/{id}`         | One category with its direct children and breadcrumb                    |
+| `GET /categories/{id}/subtree` | A category and all its descendants, nested                              |
+| `GET /nodes`                   | Flat list of all nodes; filter by `level`, `parent_id`, `leaves_only`   |
+| `GET /nodes/{id}`              | Full detail for any node: description, children, breadcrumb             |
+| `POST /nodes`                  | Add a new node; requires `X-API-Key` header                             |
+| `PATCH /nodes/{id}`            | Edit the name and/or description of a node; requires `X-API-Key` header |
+| `GET /search?q=`               | Case-insensitive search across names and descriptions                   |
 
 #### Example requests
 
@@ -91,23 +91,23 @@ API_SECRET=my-secret uvicorn main:app
 
 The taxonomy has four heading levels:
 
-| Level | Meaning | Example |
-|---|---|---|
-| 1 | Top-level category | User Interface Errors |
-| 2 | Sub-category | Functionality, Communication |
-| 3 | Error group | Missing information, Display bugs |
-| 4 | Specific error | No cursor, Spelling errors |
+| Level | Meaning            | Example                           |
+| ----- | ------------------ | --------------------------------- |
+| 1     | Top-level category | User Interface Errors             |
+| 2     | Sub-category       | Functionality, Communication      |
+| 3     | Error group        | Missing information, Display bugs |
+| 4     | Specific error     | No cursor, Spelling errors        |
 
 ### How the API loads its data
 
 The source is `Kaner_CommonSoftwareErrors.md`. The file has two halves: the first ~800 lines are a plain indented outline that the API ignores. From line 811 onward the file uses proper Markdown headings, where heading depth maps directly to position in the taxonomy:
 
-| Heading | Level | Example |
-|---|---|---|
-| `#` | 1 | User Interface Errors |
-| `##` | 2 | Functionality, Communication |
-| `###` | 3 | Missing information, Display bugs |
-| `####` | 4 | No cursor, Spelling errors |
+| Heading | Level | Example                           |
+| ------- | ----- | --------------------------------- |
+| `#`     | 1     | User Interface Errors             |
+| `##`    | 2     | Functionality, Communication      |
+| `###`   | 3     | Missing information, Display bugs |
+| `####`  | 4     | No cursor, Spelling errors        |
 
 On startup `parser.py` finds the first `#` heading and scans every heading in order. For each one it reads the body text between that heading and the next as the description, figures out the parent by keeping a stack (when it sees a level-3 heading it pops back to the most recent level-2 ancestor), generates a slug ID from the name (`"Spelling errors"` → `"spelling-errors"`), and wires the node into its parent's children list.
 
@@ -122,7 +122,7 @@ The workflow at `.github/workflows/publish-docs.yml` regenerates `openapi.json` 
 **One-time setup** — enable GitHub Pages in the repository settings:
 
 1. Go to **Settings → Pages**.
-2. Under *Source*, select **GitHub Actions**.
+2. Under _Source_, select **GitHub Actions**.
 3. Save. The next push to `main` will trigger the deployment.
 
 The published site will be at `https://<org>.github.io/<repo>/`.
@@ -138,12 +138,25 @@ python export_openapi.py
 
 ### Project files
 
-| File | Purpose |
-|---|---|
-| `requirements.txt` | Python dependencies |
-| `main.py` | FastAPI application |
-| `parser.py` | Markdown-to-taxonomy parser |
-| `export_openapi.py` | Script to regenerate `openapi.json` |
-| `openapi.json` | Static OpenAPI 3.1.0 spec |
+| File                            | Purpose                                         |
+| ------------------------------- | ----------------------------------------------- |
+| `requirements.txt`              | Python dependencies                             |
+| `main.py`                       | FastAPI application                             |
+| `parser.py`                     | Markdown-to-taxonomy parser                     |
+| `export_openapi.py`             | Script to regenerate `openapi.json`             |
+| `openapi.json`                  | Static OpenAPI 3.1.0 spec                       |
 | `Kaner_CommonSoftwareErrors.md` | Source taxonomy (Appendix A, Kaner et al. 1999) |
 
+### Testing
+
+Run the included test suite against a locally running server:
+
+```bash
+pytest tests/ -v
+```
+
+Property-based testing against the OpenAPI spec with [Schemathesis](https://schemathesis.io):
+
+```bash
+uvx schemathesis run http://localhost:8000/openapi.json --header "X-API-Key: aaa"
+```

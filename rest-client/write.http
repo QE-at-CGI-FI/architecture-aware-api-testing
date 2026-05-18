@@ -1,0 +1,191 @@
+# Auth — POST /nodes
+
+### post without key returns 401
+POST http://localhost:8000/nodes
+Content-Type: application/json
+
+{
+  "name": "Test"
+}
+
+### post with wrong key returns 401
+POST http://localhost:8000/nodes
+Content-Type: application/json
+X-API-Key: wrong
+
+{
+  "name": "Test"
+}
+
+
+# Auth — PATCH /nodes/{id}
+
+### patch without key returns 401
+PATCH http://localhost:8000/nodes/spelling-errors
+Content-Type: application/json
+
+{
+  "description": "Updated"
+}
+
+### patch with wrong key returns 401
+PATCH http://localhost:8000/nodes/spelling-errors
+Content-Type: application/json
+X-API-Key: bad-key
+
+{
+  "description": "Updated"
+}
+
+
+# POST /nodes — valid requests
+
+### post creates child node (201, level 2)
+POST http://localhost:8000/nodes
+Content-Type: application/json
+X-API-Key: aaa
+
+{
+  "name": "AI hallucination output",
+  "parent_id": "calculation-errors",
+  "description": "Model outputs confident but factually wrong results."
+}
+
+### post child node ID is slugified (201, id = my-new-error-type)
+POST http://localhost:8000/nodes
+Content-Type: application/json
+X-API-Key: aaa
+
+{
+  "name": "My New Error Type",
+  "parent_id": "error-handling"
+}
+
+### post creates top-level category (201, level 1, parent_id null)
+POST http://localhost:8000/nodes
+Content-Type: application/json
+X-API-Key: aaa
+
+{
+  "name": "AI-Specific Errors",
+  "description": "Errors unique to ML systems."
+}
+
+### post created node is retrievable — step 1: create
+POST http://localhost:8000/nodes
+Content-Type: application/json
+X-API-Key: aaa
+
+{
+  "name": "Retrievable Node Test",
+  "parent_id": "hardware"
+}
+
+### post created node is retrievable — step 2: fetch (200)
+GET http://localhost:8000/nodes/retrievable-node-test
+
+### post response includes breadcrumb (Race Conditions in breadcrumb)
+POST http://localhost:8000/nodes
+Content-Type: application/json
+X-API-Key: aaa
+
+{
+  "name": "Breadcrumb Check Node",
+  "parent_id": "race-conditions"
+}
+
+
+# POST /nodes — invalid requests
+
+### post unknown parent returns 404
+POST http://localhost:8000/nodes
+Content-Type: application/json
+X-API-Key: aaa
+
+{
+  "name": "Orphan",
+  "parent_id": "no-such-parent"
+}
+
+### post empty name returns 422
+POST http://localhost:8000/nodes
+Content-Type: application/json
+X-API-Key: aaa
+
+{
+  "name": ""
+}
+
+### post missing name returns 422
+POST http://localhost:8000/nodes
+Content-Type: application/json
+X-API-Key: aaa
+
+{
+  "description": "No name provided"
+}
+
+
+# PATCH /nodes/{id} — valid requests
+
+### patch updates description (200)
+PATCH http://localhost:8000/nodes/spelling-errors
+Content-Type: application/json
+X-API-Key: aaa
+
+{
+  "description": "Typos in UI text. Customers notice even when developers do not."
+}
+
+### patch updates name (200)
+PATCH http://localhost:8000/nodes/verbosity
+Content-Type: application/json
+X-API-Key: aaa
+
+{
+  "name": "Excessive verbosity"
+}
+
+### patch updates both fields (200)
+PATCH http://localhost:8000/nodes/factual-errors
+Content-Type: application/json
+X-API-Key: aaa
+
+{
+  "name": "Factual errors (updated)",
+  "description": "Incorrect facts in help text."
+}
+
+### patch preserves unmodified fields — step 1: fetch original
+GET http://localhost:8000/nodes/infinite-loop
+
+### patch preserves unmodified fields — step 2: update description
+PATCH http://localhost:8000/nodes/infinite-loop
+Content-Type: application/json
+X-API-Key: aaa
+
+{
+  "description": "Loop with no exit condition."
+}
+
+### patch preserves unmodified fields — step 3: verify level and parent_id unchanged
+GET http://localhost:8000/nodes/infinite-loop
+
+
+# PATCH /nodes/{id} — invalid requests
+
+### patch unknown node returns 404
+PATCH http://localhost:8000/nodes/no-such-node
+Content-Type: application/json
+X-API-Key: aaa
+
+{
+  "description": "Ghost update"
+}
+
+### patch no fields returns 422
+PATCH http://localhost:8000/nodes/spelling-errors
+Content-Type: application/json
+X-API-Key: aaa
+
+{}

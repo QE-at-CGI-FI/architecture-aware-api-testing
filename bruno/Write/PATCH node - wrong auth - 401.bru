@@ -1,0 +1,27 @@
+meta {
+  name: PATCH node - wrong auth - 401
+  type: http
+  seq: 4
+}
+
+patch {
+  url: http://localhost:8000/nodes/spelling-errors
+  body: json
+  auth: none
+}
+
+headers {
+  X-API-Key: bad-key
+}
+
+body:json {
+  {
+    "description": "Updated"
+  }
+}
+
+tests {
+  test("status is 401", function() {
+    expect(res.status).to.equal(401);
+  });
+}

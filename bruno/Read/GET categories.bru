@@ -1,0 +1,37 @@
+meta {
+  name: GET categories
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8000/categories
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("returns 11 entries", function() {
+    expect(res.body).to.have.lengthOf(11);
+  });
+  test("contains User Interface Errors", function() {
+    const names = res.body.map(c => c.name);
+    expect(names).to.include('User Interface Errors');
+  });
+  test("each entry has required fields", function() {
+    res.body.forEach(cat => {
+      expect(cat).to.have.property('id');
+      expect(cat).to.have.property('name');
+      expect(cat).to.have.property('level');
+      expect(cat).to.have.property('children');
+    });
+  });
+  test("all are level 1", function() {
+    res.body.forEach(cat => {
+      expect(cat.level).to.equal(1);
+    });
+  });
+}

@@ -1,0 +1,17 @@
+meta {
+  name: GET search no match
+  type: http
+  seq: 16
+}
+
+get {
+  url: http://localhost:8000/search?q=xyzzyplugh
+  body: none
+  auth: none
+}
+
+tests {
+  test("returns empty list", function() {
+    expect(res.body).to.have.lengthOf(0);
+  });
+}

@@ -1,0 +1,22 @@
+meta {
+  name: GET nodes leaves only
+  type: http
+  seq: 11
+}
+
+get {
+  url: http://localhost:8000/nodes?leaves_only=true
+  body: none
+  auth: none
+}
+
+tests {
+  test("returns 341 leaf nodes", function() {
+    expect(res.body).to.have.lengthOf(341);
+  });
+  test("all have child_count 0", function() {
+    res.body.forEach(n => {
+      expect(n.child_count).to.equal(0);
+    });
+  });
+}

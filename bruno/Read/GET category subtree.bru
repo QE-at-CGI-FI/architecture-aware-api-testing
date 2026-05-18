@@ -1,0 +1,23 @@
+meta {
+  name: GET category subtree
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:8000/categories/error-handling/subtree
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("children are an array of objects", function() {
+    expect(res.body.children).to.be.an('array');
+    res.body.children.forEach(c => {
+      expect(c).to.be.an('object');
+    });
+  });
+}

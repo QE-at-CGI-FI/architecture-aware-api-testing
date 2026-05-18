@@ -1,0 +1,34 @@
+meta {
+  name: GET root statistics
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8000/
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("has expected fields", function() {
+    expect(res.body).to.have.property('total_nodes');
+    expect(res.body).to.have.property('top_level_categories');
+    expect(res.body).to.have.property('leaf_nodes');
+    expect(res.body).to.have.property('max_depth');
+    expect(res.body).to.have.property('categories_by_level');
+  });
+  test("node counts are correct", function() {
+    expect(res.body.total_nodes).to.equal(394);
+    expect(res.body.top_level_categories).to.equal(11);
+    expect(res.body.leaf_nodes).to.equal(341);
+    expect(res.body.max_depth).to.equal(4);
+  });
+  test("categories_by_level covers all nodes", function() {
+    const sum = Object.values(res.body.categories_by_level).reduce((a, b) => a + b, 0);
+    expect(sum).to.equal(res.body.total_nodes);
+  });
+}

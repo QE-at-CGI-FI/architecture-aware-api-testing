@@ -1,0 +1,17 @@
+meta {
+  name: GET node by ID - 404
+  type: http
+  seq: 14
+}
+
+get {
+  url: http://localhost:8000/nodes/no-such-node
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 404", function() {
+    expect(res.status).to.equal(404);
+  });
+}

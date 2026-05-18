@@ -1,0 +1,25 @@
+meta {
+  name: GET node by ID
+  type: http
+  seq: 13
+}
+
+get {
+  url: http://localhost:8000/nodes/spelling-errors
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("has non-empty description", function() {
+    expect(res.body.description.length).to.be.above(0);
+  });
+  test("breadcrumb lists ancestors", function() {
+    const names = res.body.breadcrumb.map(b => b.name);
+    expect(names).to.include('User Interface Errors');
+    expect(names).to.include('Communication');
+  });
+}

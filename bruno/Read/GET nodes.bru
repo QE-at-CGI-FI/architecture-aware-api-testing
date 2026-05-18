@@ -1,0 +1,20 @@
+meta {
+  name: GET nodes
+  type: http
+  seq: 7
+}
+
+get {
+  url: http://localhost:8000/nodes
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("returns all 394 nodes", function() {
+    expect(res.body).to.have.lengthOf(394);
+  });
+}
