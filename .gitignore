@@ -1,0 +1,4 @@
+taxonomy_custom.json
+__pycache__
+.venv/
+.pytest_cache/

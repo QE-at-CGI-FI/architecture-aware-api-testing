@@ -1,0 +1,819 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Kaner Common Software Errors Taxonomy API",
+    "description": "REST API for navigating the bug taxonomy from Kaner, Falk, and Nguyen (1999). Provides hierarchical access to over 400 common software error types, organised into categories with full descriptions.",
+    "contact": {
+      "name": "Architecture-Aware API Testing"
+    },
+    "license": {
+      "name": "Reference: Kaner et al. 1999"
+    },
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "meta"
+        ],
+        "summary": "API info and statistics",
+        "description": "Return summary statistics about the loaded taxonomy.",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxonomyStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/taxonomy": {
+      "get": {
+        "tags": [
+          "taxonomy"
+        ],
+        "summary": "Full taxonomy tree",
+        "description": "Return the complete taxonomy as a nested tree.\n\nWarning: the full tree is large (~400 nodes). Consider `/categories`\nand drill-down via `/nodes/{id}/subtree` for paginated access.",
+        "operationId": "full_taxonomy_taxonomy_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NodeTree"
+                  },
+                  "type": "array",
+                  "title": "Response Full Taxonomy Taxonomy Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "tags": [
+          "categories"
+        ],
+        "summary": "List top-level error categories",
+        "description": "Return all top-level categories (H1 headings) with their direct children.",
+        "operationId": "list_categories_categories_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NodeDetail"
+                  },
+                  "type": "array",
+                  "title": "Response List Categories Categories Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories/{category_id}": {
+      "get": {
+        "tags": [
+          "categories"
+        ],
+        "summary": "Get a category",
+        "description": "Return a single category node with its immediate children and breadcrumb.",
+        "operationId": "get_category_categories__category_id__get",
+        "parameters": [
+          {
+            "name": "category_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Category Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories/{category_id}/subtree": {
+      "get": {
+        "tags": [
+          "categories"
+        ],
+        "summary": "Get a category's full subtree",
+        "description": "Return a category and all its descendants as a nested tree.",
+        "operationId": "get_subtree_categories__category_id__subtree_get",
+        "parameters": [
+          {
+            "name": "category_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Category Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeTree"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/nodes": {
+      "get": {
+        "tags": [
+          "nodes"
+        ],
+        "summary": "List all nodes (flat)",
+        "description": "Return a flat list of all taxonomy nodes, with optional filters.",
+        "operationId": "list_nodes_nodes_get",
+        "parameters": [
+          {
+            "name": "level",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 4,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by heading level (1\u20134)",
+              "title": "Level"
+            },
+            "description": "Filter by heading level (1\u20134)"
+          },
+          {
+            "name": "parent_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by parent node ID",
+              "title": "Parent Id"
+            },
+            "description": "Filter by parent node ID"
+          },
+          {
+            "name": "leaves_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Return only leaf nodes (no children)",
+              "default": false,
+              "title": "Leaves Only"
+            },
+            "description": "Return only leaf nodes (no children)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NodeSummary"
+                  },
+                  "title": "Response List Nodes Nodes Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "nodes"
+        ],
+        "summary": "Add a new node",
+        "description": "Add a new error or category to the taxonomy.\n\n- Supply a `parent_id` to nest the node under an existing one; its level\n  is derived automatically (parent level + 1).\n- Omit `parent_id` to create a new top-level category (level 1).\n\nChanges are persisted to `taxonomy_custom.json` and survive restarts.",
+        "operationId": "create_node_nodes_post",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateNodeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{node_id}": {
+      "get": {
+        "tags": [
+          "nodes"
+        ],
+        "summary": "Get a single node",
+        "description": "Return full detail for any node: description, children, and breadcrumb path.",
+        "operationId": "get_node_nodes__node_id__get",
+        "parameters": [
+          {
+            "name": "node_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Node Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "nodes"
+        ],
+        "summary": "Edit a node's name or description",
+        "description": "Update the name and/or description of any node.\n\nAt least one of `name` or `description` must be provided.\nChanges are persisted to `taxonomy_custom.json` and survive restarts.",
+        "operationId": "update_node_nodes__node_id__patch",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "node_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Node Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNodeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/search": {
+      "get": {
+        "tags": [
+          "search"
+        ],
+        "summary": "Search taxonomy nodes",
+        "description": "Full-text search across all node names and descriptions.\n\nReturns nodes where the query string appears in the name or description,\nordered by level (broader categories first).",
+        "operationId": "search_search_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "description": "Search term (case-insensitive, searches name and description)",
+              "title": "Q"
+            },
+            "description": "Search term (case-insensitive, searches name and description)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SearchResult"
+                  },
+                  "title": "Response Search Search Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateNodeRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name",
+            "description": "Name of the new error or category"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id",
+            "description": "ID of the parent node. Omit to create a top-level category."
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Description text (Markdown supported)",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "CreateNodeRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "NodeDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "level": {
+            "type": "integer",
+            "title": "Level"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "children": {
+            "items": {
+              "$ref": "#/components/schemas/NodeSummary"
+            },
+            "type": "array",
+            "title": "Children"
+          },
+          "breadcrumb": {
+            "items": {
+              "$ref": "#/components/schemas/NodeSummary"
+            },
+            "type": "array",
+            "title": "Breadcrumb"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "level",
+          "description",
+          "parent_id",
+          "children",
+          "breadcrumb"
+        ],
+        "title": "NodeDetail"
+      },
+      "NodeSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "level": {
+            "type": "integer",
+            "title": "Level"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "child_count": {
+            "type": "integer",
+            "title": "Child Count"
+          },
+          "has_description": {
+            "type": "boolean",
+            "title": "Has Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "level",
+          "parent_id",
+          "child_count",
+          "has_description"
+        ],
+        "title": "NodeSummary"
+      },
+      "NodeTree": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "level": {
+            "type": "integer",
+            "title": "Level"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "children": {
+            "items": {
+              "$ref": "#/components/schemas/NodeTree"
+            },
+            "type": "array",
+            "title": "Children"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "level",
+          "description",
+          "parent_id",
+          "children"
+        ],
+        "title": "NodeTree"
+      },
+      "SearchResult": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "level": {
+            "type": "integer",
+            "title": "Level"
+          },
+          "description_excerpt": {
+            "type": "string",
+            "title": "Description Excerpt"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "breadcrumb": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Breadcrumb"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "level",
+          "description_excerpt",
+          "parent_id",
+          "breadcrumb"
+        ],
+        "title": "SearchResult"
+      },
+      "TaxonomyStats": {
+        "properties": {
+          "total_nodes": {
+            "type": "integer",
+            "title": "Total Nodes"
+          },
+          "top_level_categories": {
+            "type": "integer",
+            "title": "Top Level Categories"
+          },
+          "leaf_nodes": {
+            "type": "integer",
+            "title": "Leaf Nodes"
+          },
+          "max_depth": {
+            "type": "integer",
+            "title": "Max Depth"
+          },
+          "categories_by_level": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Categories By Level"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_nodes",
+          "top_level_categories",
+          "leaf_nodes",
+          "max_depth",
+          "categories_by_level"
+        ],
+        "title": "TaxonomyStats"
+      },
+      "UpdateNodeRequest": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "New name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "New description text (Markdown supported)"
+          }
+        },
+        "type": "object",
+        "title": "UpdateNodeRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "APIKeyHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    }
+  }
+}
