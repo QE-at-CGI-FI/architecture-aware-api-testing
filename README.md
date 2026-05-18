@@ -98,6 +98,23 @@ The taxonomy has four heading levels:
 | 3 | Error group | Missing information, Display bugs |
 | 4 | Specific error | No cursor, Spelling errors |
 
+### How the API loads its data
+
+The source is `Kaner_CommonSoftwareErrors.md`. The file has two halves: the first ~800 lines are a plain indented outline that the API ignores. From line 811 onward the file uses proper Markdown headings, where heading depth maps directly to position in the taxonomy:
+
+| Heading | Level | Example |
+|---|---|---|
+| `#` | 1 | User Interface Errors |
+| `##` | 2 | Functionality, Communication |
+| `###` | 3 | Missing information, Display bugs |
+| `####` | 4 | No cursor, Spelling errors |
+
+On startup `parser.py` finds the first `#` heading and scans every heading in order. For each one it reads the body text between that heading and the next as the description, figures out the parent by keeping a stack (when it sees a level-3 heading it pops back to the most recent level-2 ancestor), generates a slug ID from the name (`"Spelling errors"` → `"spelling-errors"`), and wires the node into its parent's children list.
+
+The result is a Python dict of 394 nodes held in memory for the lifetime of the process. No database, no file re-reads after startup.
+
+Any edits or additions made via the API are written to a separate `taxonomy_custom.json` sidecar file. On the next restart the app parses the markdown fresh (same 394 nodes), then replays that file on top — applying name/description edits and re-inserting any added nodes.
+
 ### GitHub Pages (API documentation site)
 
 The workflow at `.github/workflows/publish-docs.yml` regenerates `openapi.json` from the live app and deploys a Swagger UI page automatically on every push to `main`.
