@@ -147,6 +147,14 @@ python export_openapi.py
 | `openapi.json`                  | Static OpenAPI 3.1.0 spec                       |
 | `Kaner_CommonSoftwareErrors.md` | Source taxonomy (Appendix A, Kaner et al. 1999) |
 
+### Additional endpoints
+
+Endpoints for simulations / discovery added:
+
+- GET rabbit - extreme versions of discovery
+- POST/GET async - when responses may arrive in different order
+- GET flaky - when responses may never arrive
+
 ### Testing
 
 Run the included test suite against a locally running server:
