@@ -6,6 +6,24 @@ This repo holds materials for the architecture-aware API testing course, first d
 
 ---
 
+## Possible, even recommended tools
+
+- Sending requests, looking at responses
+  - curl
+  - swagger (the UI for openAPI documentation)
+  - scalar (the replacement for swagger https://scalar.com/guides/migration/swagger-ui)
+  - rest client
+- Sending requests, asserting on responses
+  - postman / insomnia
+  - programming-language native e.g python - pytest - requests or typescript - playwright
+- Default-all asserting for responses
+  - approvals (library for multiple programming languages)
+- Generative, with packaged asserts (properties)
+  - schemathesis
+- Setting up scope of testing by mocking
+  - wiremock
+    - https://github.com/maaretp/wiremock-weather
+
 ## Kaner Common Software Errors Taxonomy API
 
 A REST API that exposes the bug taxonomy from _Testing Computer Software_ (Kaner, Falk & Nguyen, 1999) — 394 error types across 11 top-level categories, each with full descriptions and a navigable hierarchy.
