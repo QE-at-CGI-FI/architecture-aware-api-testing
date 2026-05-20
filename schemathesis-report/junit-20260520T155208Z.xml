@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites disabled="0" errors="0" failures="10" tests="15" time="5.810374992492143">
+	<testsuite disabled="0" errors="0" failures="10" name="schemathesis" skipped="0" tests="15" time="5.810374992492143" hostname="FI-HQ6Q36CQ7C">
+		<testcase name="POST /async" time="0.065348"/>
+		<testcase name="POST /nodes" time="0.068577">
+			<failure type="failure" message="1. Test Case ID: PRlHWH
+
+- Undocumented HTTP status code
+
+    Received: 401
+    Documented: 201, 422
+
+[401] Unauthorized:
+
+    `{&quot;detail&quot;:&quot;Invalid or missing API key.&quot;}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{&quot;name&quot;: &quot;0&quot;}' http://localhost:8000/nodes"/>
+			<failure type="failure" message="1. Test Case ID: 1WS5Ub
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 201, 422
+
+[400] Bad Request:
+
+    `{&quot;detail&quot;:&quot;There was an error parsing the body&quot;}`
+
+Reproduce with:
+
+    curl -X POST -H 'X-API-Key: [Filtered]' -H 'Content-Type: application/json' -d '��l� L' http://localhost:8000/nodes"/>
+		</testcase>
+		<testcase name="GET /" time="0.010782"/>
+		<testcase name="GET /categories" time="0.011631"/>
+		<testcase name="GET /categories/{category_id}" time="0.180700">
+			<failure type="failure" message="1. Test Case ID: s1yoFk
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200, 422
+
+[404] Not Found:
+
+    `{&quot;detail&quot;:&quot;Node '0' not found.&quot;}`
+
+Reproduce with:
+
+    curl -X GET -H 'X-API-Key: [Filtered]' http://localhost:8000/categories/0"/>
+		</testcase>
+		<testcase name="GET /categories/{category_id}/subtree" time="0.007997">
+			<failure type="failure" message="1. Test Case ID: N1NWQM
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200, 422
+
+[404] Not Found:
+
+    `{&quot;detail&quot;:&quot;Node '0' not found.&quot;}`
+
+Reproduce with:
+
+    curl -X GET -H 'X-API-Key: [Filtered]' http://localhost:8000/categories/0/subtree"/>
+		</testcase>
+		<testcase name="GET /flaky" time="0.007107">
+			<failure type="failure" message="1. Test Case ID: snab6y
+
+- Server error
+
+- Undocumented HTTP status code
+
+    Received: 503
+    Documented: 200
+
+[503] Service Unavailable:
+
+    `{&quot;detail&quot;:&quot;Service temporarily unavailable.&quot;}`
+
+Reproduce with:
+
+    curl -X GET -H 'X-API-Key: [Filtered]' http://localhost:8000/flaky"/>
+			<failure type="failure" message="1. Test Case ID: X2hjlM
+
+- Undocumented Content-Type
+
+    Received: text/plain; charset=utf-8
+    Documented: application/json
+
+[200] OK:
+
+    `Hello world!`
+
+Reproduce with:
+
+    curl -X GET -H 'X-API-Key: [Filtered]' http://localhost:8000/flaky"/>
+		</testcase>
+		<testcase name="GET /nodes" time="0.076712">
+			<failure type="failure" message="1. Test Case ID: wbCF1J
+
+- API rejected schema-compliant request
+
+    Valid data should have been accepted
+    Expected: 2xx, 401, 403, 404, 409, 5xx
+
+[422] Unprocessable Content:
+
+    `{&quot;detail&quot;:[{&quot;type&quot;:&quot;int_parsing&quot;,&quot;loc&quot;:[&quot;query&quot;,&quot;level&quot;],&quot;msg&quot;:&quot;Input should be a valid integer, unable to parse string as an integer&quot;,&quot;input&quot;:&quot;null&quot;}]}`
+
+Reproduce with:
+
+    curl -X GET -H 'X-API-Key: [Filtered]' 'http://localhost:8000/nodes?level=null&amp;parent_id=&amp;leaves_only=true'"/>
+		</testcase>
+		<testcase name="GET /rabbit/{n}" time="0.576477">
+			<failure type="failure" message="1. Test Case ID: dgtVMP
+
+- Response violates schema
+
+    &quot;n must be a positive integer.&quot; is not of type &quot;array&quot;
+
+    Schema at /components/schemas/HTTPValidationError/properties/detail:
+
+        {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;items&quot;: {
+                &quot;$ref&quot;: &quot;#/components/schemas/ValidationError&quot;
+            },
+            &quot;title&quot;: &quot;Detail&quot;
+        }
+
+    Value:
+
+        &quot;n must be a positive integer.&quot;
+
+- API rejected schema-compliant request
+
+    Valid data should have been accepted
+    Expected: 2xx, 401, 403, 404, 409, 5xx
+
+[422] Unprocessable Content:
+
+    `{&quot;detail&quot;:&quot;n must be a positive integer.&quot;}`
+
+Reproduce with:
+
+    curl -X GET -H 'X-API-Key: [Filtered]' http://localhost:8000/rabbit/0"/>
+			<failure type="failure" message="1. Test Case ID: mFjYwU
+
+- Server error
+
+- Undocumented HTTP status code
+
+    Received: 500
+    Documented: 200, 422
+
+[500] Internal Server Error:
+
+    `{&quot;detail&quot;:&quot;Traceback (most recent call last):\n  File \&quot;/Users/maaretp/Documents/cgi-code/architecture-aware-api-testing/rabbit.py\&quot;, line 37, in &lt;module&gt;\n    p(i((1/5**.5)*(((1+5**.5)/2)**(i(a[1])+1)-((1\n                   ~~~~~~~~~~~~~^^~~~~~~~~~~~\nOverflowError: (34, 'Result too large')&quot;}`
+
+Reproduce with:
+
+    curl -X GET -H 'X-API-Key: [Filtered]' http://localhost:8000/rabbit/21548"/>
+		</testcase>
+		<testcase name="GET /search" time="0.802290"/>
+		<testcase name="GET /taxonomy" time="0.016132"/>
+		<testcase name="GET /async/{job_id}" time="0.146502">
+			<failure type="failure" message="1. Test Case ID: 9gz1wm
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200, 422
+
+[404] Not Found:
+
+    `{&quot;detail&quot;:&quot;Job '0' not found.&quot;}`
+
+Reproduce with:
+
+    curl -X GET -H 'X-API-Key: [Filtered]' http://localhost:8000/async/0"/>
+		</testcase>
+		<testcase name="GET /nodes/{node_id}" time="0.144155">
+			<failure type="failure" message="1. Test Case ID: XtadFa
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200, 422
+
+[404] Not Found:
+
+    `{&quot;detail&quot;:&quot;Node '0' not found.&quot;}`
+
+Reproduce with:
+
+    curl -X GET -H 'X-API-Key: [Filtered]' http://localhost:8000/nodes/0"/>
+		</testcase>
+		<testcase name="PATCH /nodes/{node_id}" time="0.155800">
+			<failure type="failure" message="1. Test Case ID: 0wE8QC
+
+- Undocumented HTTP status code
+
+    Received: 401
+    Documented: 200, 422
+
+[401] Unauthorized:
+
+    `{&quot;detail&quot;:&quot;Invalid or missing API key.&quot;}`
+
+Reproduce with:
+
+    curl -X PATCH -H 'Content-Type: application/json' -d '{}' http://localhost:8000/nodes/error-handling"/>
+			<failure type="failure" message="1. Test Case ID: JCH05Y
+
+- Response violates schema
+
+    &quot;Provide at least one of 'name' or 'description'.&quot; is not of type &quot;array&quot;
+
+    Schema at /components/schemas/HTTPValidationError/properties/detail:
+
+        {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;items&quot;: {
+                &quot;$ref&quot;: &quot;#/components/schemas/ValidationError&quot;
+            },
+            &quot;title&quot;: &quot;Detail&quot;
+        }
+
+    Value:
+
+        &quot;Provide at least one of 'name' or 'description'.&quot;
+
+- API rejected schema-compliant request
+
+    Valid data should have been accepted
+    Expected: 2xx, 401, 403, 404, 409, 5xx
+
+[422] Unprocessable Content:
+
+    `{&quot;detail&quot;:&quot;Provide at least one of 'name' or 'description'.&quot;}`
+
+Reproduce with:
+
+    curl -X PATCH -H 'X-API-Key: [Filtered]' -H 'Content-Type: application/json' -d '{}' http://localhost:8000/nodes/error-handling"/>
+		</testcase>
+		<testcase name="Stateful tests" time="3.540165">
+			<failure type="failure" message="1. Test Case ID: 44PR94
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 200, 422
+
+[400] Bad Request:
+
+    `{&quot;detail&quot;:&quot;There was an error parsing the body&quot;}`
+
+Reproduce with:
+
+    curl -X GET -H 'X-API-Key: [Filtered]' -H 'Content-Type: application/json' http://localhost:8000/categories
+    curl -X GET -H 'X-API-Key: [Filtered]' -H 'Content-Type: application/json' http://localhost:8000/nodes/z-m
+    curl -X PATCH -H 'X-API-Key: [Filtered]' -H 'Content-Type: application/json' -d $'܈�Qa\x11�\x06=�' http://localhost:8000/nodes/z-m"/>
+		</testcase>
+	</testsuite>
+</testsuites>

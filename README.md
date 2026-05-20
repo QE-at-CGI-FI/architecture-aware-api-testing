@@ -189,6 +189,7 @@ uvx schemathesis run http://localhost:8000/openapi.json --header "X-API-Key: aaa
 ```
 
 If you installed schemathesis
+
 ```bash
-st run http://localhost:8000/openapi.json --header "X-API-Key: aaa"
+st run http://localhost:8000/openapi.json --header "X-API-Key: aaa" --report=junit
 ```
