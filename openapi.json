@@ -12,6 +12,49 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/rabbit/{n}": {
+      "get": {
+        "tags": [
+          "rabbit"
+        ],
+        "summary": "I take a number and return a number but what am I?",
+        "description": "Do what rabbit.py does.",
+        "operationId": "rabbit_rabbit__n__get",
+        "parameters": [
+          {
+            "name": "n",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "N"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RabbitResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "tags": [
@@ -651,6 +694,24 @@
           "children"
         ],
         "title": "NodeTree"
+      },
+      "RabbitResult": {
+        "properties": {
+          "input": {
+            "type": "integer",
+            "title": "Input"
+          },
+          "result": {
+            "type": "integer",
+            "title": "Result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "input",
+          "result"
+        ],
+        "title": "RabbitResult"
       },
       "SearchResult": {
         "properties": {

@@ -2,12 +2,16 @@
 from __future__ import annotations
 
 import json
+import random
+import subprocess
+import sys
+import uuid
 from pathlib import Path
 from typing import Annotated, Optional
 
 import os
 
-from fastapi import FastAPI, HTTPException, Query, Security
+from fastapi import FastAPI, HTTPException, Query, Response, Security
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, Field
 
@@ -132,6 +136,17 @@ class SearchResult(BaseModel):
     breadcrumb: list[str]
 
 
+class RabbitResult(BaseModel):
+    input: int
+    result: int
+
+
+class AsyncJobStatus(BaseModel):
+    job_id: str
+    status: str
+    result: Optional[int] = None
+
+
 class TaxonomyStats(BaseModel):
     total_nodes: int
     top_level_categories: int
@@ -184,6 +199,55 @@ def _excerpt(text: str, max_len: int = 200) -> str:
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
+
+
+_RABBIT_SCRIPT = Path(__file__).parent / "rabbit.py"
+
+
+def _call_rabbit(n: int) -> int:
+    proc = subprocess.run(
+        [sys.executable, str(_RABBIT_SCRIPT), str(n)],
+        capture_output=True, text=True, timeout=10,
+    )
+    if proc.returncode != 0:
+        raise HTTPException(status_code=500, detail=proc.stderr.strip())
+    return int(proc.stdout.strip())
+
+
+# --- Simulation state (in-memory, resets on restart) ---
+_unreliable_count = 0
+
+
+class _AsyncBatch:
+    def __init__(self, results: dict[str, int], reveal_order: list[str]) -> None:
+        self.results = results
+        self.reveal_order = reveal_order
+        self.polls = 0
+
+
+_async_pending: list[tuple[str, int]] = []
+_async_job_to_batch: dict[str, _AsyncBatch] = {}
+
+
+@app.get(
+    "/rabbit/{n}",
+    response_model=RabbitResult,
+    summary="I take a number and return a number but what am I?",
+    tags=["rabbit"],
+)
+def rabbit(n: int) -> RabbitResult:
+    """Do what rabbit.py does."""
+    if n < 1:
+        raise HTTPException(status_code=422, detail="n must be a positive integer.")
+    proc = subprocess.run(
+        [sys.executable, str(_RABBIT_SCRIPT), str(n)],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    if proc.returncode != 0:
+        raise HTTPException(status_code=500, detail=proc.stderr.strip())
+    return RabbitResult(input=n, result=int(proc.stdout.strip()))
 
 
 @app.get("/", summary="API info and statistics", tags=["meta"])
@@ -387,3 +451,48 @@ def search(
         )
         for n in results
     ]
+
+
+# ---------------------------------------------------------------------------
+# Simulation endpoints
+# ---------------------------------------------------------------------------
+
+_async_jobs: dict[str, int] = {}  # job_id -> poll count
+
+
+@app.get("/flaky", summary="Unreliable hello", tags=["simulation"])
+def flaky() -> Response:
+    """Return 'Hello world!' two thirds of the time; 503 the other third."""
+    if random.random() < 2 / 3:
+        return Response(content="Hello world!", media_type="text/plain")
+    raise HTTPException(status_code=503, detail="Service temporarily unavailable.")
+
+
+@app.post(
+    "/async",
+    response_model=AsyncJobStatus,
+    status_code=202,
+    summary="Start an async job",
+    tags=["simulation"],
+)
+def start_async_job() -> AsyncJobStatus:
+    """Create a new async job and return its ID. Poll GET /async/{job_id} to get the result."""
+    job_id = str(uuid.uuid4())
+    _async_jobs[job_id] = 0
+    return AsyncJobStatus(job_id=job_id, status="pending")
+
+
+@app.get(
+    "/async/{job_id}",
+    response_model=AsyncJobStatus,
+    summary="Poll an async job",
+    tags=["simulation"],
+)
+def poll_async_job(job_id: str) -> AsyncJobStatus:
+    """Poll for job status. Returns 'pending' until the third poll, then 'complete'."""
+    if job_id not in _async_jobs:
+        raise HTTPException(status_code=404, detail=f"Job '{job_id}' not found.")
+    _async_jobs[job_id] += 1
+    if _async_jobs[job_id] >= 3:
+        return AsyncJobStatus(job_id=job_id, status="complete", result=42)
+    return AsyncJobStatus(job_id=job_id, status="pending")
