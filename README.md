@@ -15,6 +15,7 @@ This repo holds materials for the architecture-aware API testing course, first d
   - rest client
 - Sending requests, asserting on responses
   - postman / insomnia
+  - soapUI 
   - programming-language native e.g python - pytest - requests or typescript - playwright
 - Default-all asserting for responses
   - approvals (library for multiple programming languages)
