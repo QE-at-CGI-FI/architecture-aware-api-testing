@@ -15,7 +15,7 @@ This repo holds materials for the architecture-aware API testing course, first d
   - rest client
 - Sending requests, asserting on responses
   - postman / insomnia
-  - soapUI 
+  - soapUI
   - programming-language native e.g python - pytest - requests or typescript - playwright
 - Default-all asserting for responses
   - approvals (library for multiple programming languages)
@@ -186,4 +186,9 @@ Property-based testing against the OpenAPI spec with [Schemathesis](https://sche
 
 ```bash
 uvx schemathesis run http://localhost:8000/openapi.json --header "X-API-Key: aaa"
+```
+
+If you installed schemathesis
+```bash
+st run http://localhost:8000/openapi.json --header "X-API-Key: aaa"
 ```
